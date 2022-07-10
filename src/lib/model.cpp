@@ -722,14 +722,19 @@ void string_write_str(sz i, const std::string& to_insert, std::string& str) {
 	VINA_CHECK(out.str().size() == 2);
 	VINA_CHECK(str.size() > i + 2);
 	VINA_FOR(j, 2)
-	str[i+j] = out.str()[j];
+		str[i+j] = out.str()[j];
 }
 
-std::string coords_to_pdbqt_string(const vec& coords, const std::string& str) {
+
+std::string coords_to_pdbqt_string(const vec& coords, const fl& bfact, const fl& occup, const fl& q, const std::string& atom_type, const std::string& str) {
 	std::string tmp(str);
 	string_write_coord(31, coords[0], tmp);
 	string_write_coord(39, coords[1], tmp);
 	string_write_coord(47, coords[2], tmp);
+	string_write_attr(55, bfact, tmp);
+	string_write_attr(61, occup, tmp);
+	string_write_attr(70, q, tmp);
+	string_write_str(78, atom_type, tmp);
 	return tmp;
 }
 
@@ -737,8 +742,13 @@ void model::write_context(const context& c, ofile& out, std::vector<grid> grids,
 	verify_bond_lengths();
 	VINA_FOR_IN(i, c) {
 		const std::string& str = c[i].first;
+		fl hb_vdw = 2.2; //g.evaluate(coords[i], cache_slope, v);
+
+		// charge
+		fl q = 0.0; //TODO get the charge value
+		fl bfact = 0.0;
 		if(c[i].second) {
-			out << coords_to_pdbqt_string(coords[c[i].second.get()], str) << '\n';
+			out << coords_to_pdbqt_string(coords[c[i].second.get()], hb_vdw, bfact, q, "Hn", str) << '\n';
 		}
 		else
 			out << str << '\n';
@@ -750,8 +760,13 @@ void model::write_context(const context &c, std::ostringstream& out, std::vector
 
 	VINA_FOR_IN(i, c) {
 		const std::string &str = c[i].first;
+		fl hb_vdw = 2.2; //g.evaluate(coords[i], cache_slope, v);
+
+		// charge
+		fl q = 0.0; //TODO get the charge value
+		fl bfact = 0.0;
 		if (c[i].second)
-			out << coords_to_pdbqt_string(coords[c[i].second.get()], str) << '\n';
+			out << coords_to_pdbqt_string(coords[c[i].second.get()], hb_vdw, bfact, q, "Hn", str) << '\n';
 		else
 			out << str << '\n';
 	}
