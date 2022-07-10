@@ -692,10 +692,37 @@ void string_write_coord(sz i, fl x, std::string& str) {
 	out.setf(std::ios::fixed, std::ios::floatfield);
 	out.setf(std::ios::showpoint);
 	out << std::setw(8) << std::setprecision(3) << x;
-	VINA_CHECK(out.str().size() == 8); 
+	VINA_CHECK(out.str().size() == 8);
 	VINA_CHECK(str.size() > i + 8);
 	VINA_FOR(j, 8)
 		str[i+j] = out.str()[j];
+}
+
+
+void string_write_attr(sz i, fl x, std::string& str) {
+	VINA_CHECK(i > 0);
+	--i;
+	std::ostringstream out;
+	out.setf(std::ios::fixed, std::ios::floatfield);
+	out.setf(std::ios::showpoint);
+	out << std::setw(6) << std::setprecision(2) << x;
+	VINA_CHECK(out.str().size() == 6);
+	VINA_CHECK(str.size() > i + 6);
+	VINA_FOR(j, 6)
+		str[i+j] = out.str()[j];
+}
+
+
+void string_write_str(sz i, const std::string& to_insert, std::string& str) {
+	VINA_CHECK(i > 0);
+	--i;
+	std::ostringstream out;
+	out.setf(std::ios::left);
+	out << std::setw(2) << std::setprecision(2) << to_insert;
+	VINA_CHECK(out.str().size() == 2);
+	VINA_CHECK(str.size() > i + 2);
+	VINA_FOR(j, 2)
+	str[i+j] = out.str()[j];
 }
 
 std::string coords_to_pdbqt_string(const vec& coords, const std::string& str) {
@@ -706,7 +733,7 @@ std::string coords_to_pdbqt_string(const vec& coords, const std::string& str) {
 	return tmp;
 }
 
-void model::write_context(const context& c, ofile& out) const {
+void model::write_context(const context& c, ofile& out, std::vector<grid> grids, fl cache_slope) const {
 	verify_bond_lengths();
 	VINA_FOR_IN(i, c) {
 		const std::string& str = c[i].first;
@@ -718,7 +745,7 @@ void model::write_context(const context& c, ofile& out) const {
 	}
 }
 
-void model::write_context(const context &c, std::ostringstream& out) const {
+void model::write_context(const context &c, std::ostringstream& out, std::vector<grid> grids, fl cache_slope) const {
 	verify_bond_lengths();
 
 	VINA_FOR_IN(i, c) {
@@ -730,16 +757,16 @@ void model::write_context(const context &c, std::ostringstream& out) const {
 	}
 }
 
-std::string model::write_model(sz model_number, const std::string &remark) {
+std::string model::write_model(sz model_number, const std::string &remark, std::vector<grid> grids, fl cache_slope) {
 	std::ostringstream out;
 
 	out << "MODEL " << model_number << '\n';
 	out << remark;
 
 	VINA_FOR_IN(i, ligands)
-		write_context(ligands[i].cont, out);
+		write_context(ligands[i].cont, out, grids, cache_slope);
 	if (num_flex() > 0) // otherwise remark is written in vain
-		write_context(flex_context, out);
+		write_context(flex_context, out, grids, cache_slope);
 
 	out << "ENDMDL\n";
 

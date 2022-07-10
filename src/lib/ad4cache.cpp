@@ -428,9 +428,9 @@ void ad4cache::write(const std::string& out_prefix, const szv& atom_types, const
 } // cache::write
 
 void ad4cache::write_model(model &m_model, int n, std::string &remarks, std::ostringstream &out){
-	out << m_model.write_model(n + 1, remarks);
+	out << m_model.write_model(n + 1, remarks, m_grids, m_slope);
 }
 
 void ad4cache::write_structure(model &m_model, ofile& f, std::string remarks){
-	m_model.write_structure(f, remarks);
+	m_model.write_structure(f, remarks, m_grids, m_slope);
 }

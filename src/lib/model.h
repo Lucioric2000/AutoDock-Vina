@@ -29,6 +29,7 @@
 #include "tree.h"
 #include "matrix.h"
 #include "igrid.h"
+#include "grid.h"
 #include "grid_dim.h"
 
 
@@ -106,30 +107,30 @@ public:
 	conf_size get_size() const;
 	conf get_initial_conf() const; // torsions = 0, orientations = identity, ligand positions = current
 
-	void write_flex  (                  const path& name, const std::string& remark) const { write_context(flex_context, name, remark); }
-	void write_ligand(sz ligand_number, const path& name, const std::string& remark) const { VINA_CHECK(ligand_number < ligands.size()); write_context(ligands[ligand_number].cont, name, remark); }
-	void write_structure(ofile& out) const {
+	void write_flex  (                  const path& name, const std::string& remark, std::vector<grid> grids, fl cache_slope) const { write_context(flex_context, name, remark, grids, cache_slope); }
+	void write_ligand(sz ligand_number, const path& name, const std::string& remark, std::vector<grid> grids, fl cache_slope) const { VINA_CHECK(ligand_number < ligands.size()); write_context(ligands[ligand_number].cont, name, remark, grids, cache_slope); }
+	void write_structure(ofile& out, std::vector<grid> grids, fl cache_slope) const {
 		VINA_FOR_IN(i, ligands)
-			write_context(ligands[i].cont, out);
+			write_context(ligands[i].cont, out, grids, cache_slope);
 		if(num_flex() > 0) // otherwise remark is written in vain
-			write_context(flex_context, out);
+			write_context(flex_context, out, grids, cache_slope);
 	}
-	void write_structure(ofile& out, const std::string& remark) const {
+	void write_structure(ofile& out, const std::string& remark, std::vector<grid> grids, fl cache_slope) const {
 		out << remark;
-		write_structure(out);
+		write_structure(out, grids, cache_slope);
 	}
-	void write_structure(ofile& out, std::vector<std::string>& remarks) const {
+	void write_structure(ofile& out, std::vector<std::string>& remarks, std::vector<grid> grids, fl cache_slope) const {
 		VINA_FOR_IN(i, remarks) out << remarks[i];
-		write_structure(out);
+		write_structure(out, grids, cache_slope);
 	}
 
-	void write_structure(const path& name) const { ofile out(name); write_structure(out); }
-	void write_model(ofile& out, sz model_number, const std::string& remark) const {
+	void write_structure(const path& name, std::vector<grid> grids, fl cache_slope) const { ofile out(name); write_structure(out, grids, cache_slope); }
+	void write_model(ofile& out, sz model_number, const std::string& remark, std::vector<grid> grids, fl cache_slope) const {
 		out << "MODEL " << model_number << '\n';
-		write_structure(out, remark);
+		write_structure(out, remark, grids, cache_slope);
 		out << "ENDMDL\n";
 	}
-	std::string write_model(sz model_number, const std::string &remark);
+	std::string write_model(sz model_number, const std::string &remark, std::vector<grid> grids, fl cache_slope);
 
 	void set (const conf& c);
 
@@ -176,18 +177,18 @@ private:
 	friend struct appender_info;
 	friend struct pdbqt_initializer;
 
-	void write_context(const context &c, std::ostringstream& out) const;
-	void write_context(const context& c, ofile& out) const;
-	void write_context(const context& c, ofile& out, const std::string& remark) const {
+	void write_context(const context &c, std::ostringstream& out, std::vector<grid> grids, fl cache_slope) const;
+	void write_context(const context& c, ofile& out, std::vector<grid> grids, fl cache_slope) const;
+	void write_context(const context& c, ofile& out, const std::string& remark, std::vector<grid> grids, fl cache_slope) const {
 		out << remark;
 	}
-	void write_context(const context& c, const path& name) const {
+	void write_context(const context& c, const path& name, std::vector<grid> grids, fl cache_slope) const {
 		ofile out(name);
-		write_context(c, out);
+		write_context(c, out, grids, cache_slope);
 	}
-	void write_context(const context& c, const path& name, const std::string& remark) const {
+	void write_context(const context& c, const path& name, const std::string& remark, std::vector<grid> grids, fl cache_slope) const {
 		ofile out(name);
-		write_context(c, out, remark);
+		write_context(c, out, remark, grids, cache_slope);
 	}
 	fl rmsd_lower_bound_asymmetric(const model& x, const model& y) const; // actually static
 	
