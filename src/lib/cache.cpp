@@ -512,3 +512,11 @@ void cache::populate(const model &m, const precalculate &p, const szv &atom_type
 		}
 	}
 }
+
+void cache::write_model(model &m_model, int n, std::string &remarks, std::ostringstream &out){
+	out << m_model.write_model(n + 1, remarks, m_grids, m_slope);
+}
+
+void cache::write_structure(model &m_model, ofile& f, std::string remarks){
+	m_model.write_structure(f, remarks, this->m_grids, this->m_slope);
+}

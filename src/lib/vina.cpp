@@ -597,7 +597,14 @@ std::string Vina::get_poses(int how_many, double energy_range) {
 
 			// Write conf
 			remarks = vina_remarks(m_poses[i], m_poses[i].lb, m_poses[i].ub);
-			out << m_model.write_model(n + 1, remarks);
+            std::cerr << "towrimod\n";
+            if (m_sf_choice == SF_VINA || m_sf_choice == SF_VINARDO) {
+                std::cerr << "towrimodu\n";
+				m_grid.write_model(m_model, n + 1, remarks, out);
+                std::cerr << "writtenmody\n";
+            } else {
+				m_ad4grid.write_model(m_model, n + 1, remarks, out);
+            }
 
 			n++;
 		}
@@ -636,7 +643,14 @@ void Vina::write_pose(const std::string& output_name, const std::string& remark)
 	}
 
 	ofile f(make_path(output_name));
-	m_model.write_structure(f, format_remark.str());
+	std::cerr << "towristruct\n";
+    if (m_sf_choice == SF_VINA || m_sf_choice == SF_VINARDO) {
+        //m_model.write_structure(f, format_remark.str(), m_grid.m_grids, m_grid.m_slope);
+		m_grid.write_structure(m_model, f, format_remark.str());
+    } else {
+        //m_model.write_structure(f, format_remark.str(), m_ad4grid.m_grids, m_ad4grid.m_slope);
+		m_ad4grid.write_structure(m_model, f, format_remark.str());
+    }
 }
 
 void Vina::randomize(const int max_steps) {
