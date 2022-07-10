@@ -740,9 +740,17 @@ std::string coords_to_pdbqt_string(const vec& coords, const fl& bfact, const fl&
 
 void model::write_context(const context& c, ofile& out, std::vector<grid> grids, fl cache_slope) const {
 	verify_bond_lengths();
+	const int v = 1000; //from authentic_v
 	VINA_FOR_IN(i, c) {
 		const std::string& str = c[i].first;
-		fl hb_vdw = 2.2; //g.evaluate(coords[i], cache_slope, v);
+		const atom& a = atoms[i];
+		sz t = atoms[i].get(atom_type::AD);
+		const std::string& atom_type = atom_kind_data[t].name;
+
+		// HB + vdW
+		grid& g = grids[t];
+		//std::cerr << "cevereba "<<i<<" in "<<t<<"\n";
+		fl hb_vdw = g.evaluate(coords[i], cache_slope, v);
 
 		// charge
 		fl q = 0.0; //TODO get the charge value
@@ -757,10 +765,17 @@ void model::write_context(const context& c, ofile& out, std::vector<grid> grids,
 
 void model::write_context(const context &c, std::ostringstream& out, std::vector<grid> grids, fl cache_slope) const {
 	verify_bond_lengths();
-
+	const int v = 1000; //from authentic_v
 	VINA_FOR_IN(i, c) {
 		const std::string &str = c[i].first;
-		fl hb_vdw = 2.2; //g.evaluate(coords[i], cache_slope, v);
+		const atom& a = atoms[i];
+		sz t = atoms[i].get(atom_type::AD);
+		const std::string& atom_type = atom_kind_data[t].name;
+
+
+		// HB + vdW
+		const grid& g = grids[t];
+		fl hb_vdw = g.evaluate(coords[i], cache_slope, v);
 
 		// charge
 		fl q = 0.0; //TODO get the charge value
