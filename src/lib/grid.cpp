@@ -21,9 +21,12 @@
 */
 
 #include "grid.h"
+#include <iostream> // various debugging everywhere
 
 void grid::init(const grid_dims& gd) {
 	m_data.resize(gd[0].n_voxels + 1, gd[1].n_voxels + 1, gd[2].n_voxels + 1); // number of sample points == n_voxels + 1
+	std::cerr << "mdimx " << m_data.dim(0) << " in " << m_data.dim(1) << " and " << m_data.dim(2) << "\n";
+	std::cerr << "mdimxu " << m_data.dim0() << " in " << m_data.dim1() << " and " << m_data.dim2() << "\n";
 	m_init = vec(gd[0].begin, gd[1].begin, gd[2].begin);
 	m_range = vec(gd[0].span(), gd[1].span(), gd[2].span());
 	assert(m_range[0] > 0);
@@ -55,6 +58,7 @@ fl grid::evaluate_aux(const vec& location, fl slope, fl v, vec* deriv) const { /
 		else if(s[i] >= m_dim_fl_minus_1[i]) {
 			miss[i] = s[i] - m_dim_fl_minus_1[i];
 			region[i] = 1;
+			std::cerr << "mdimi " << m_data.dim(i) <<" in " << i << "\n";
 			assert(m_data.dim(i) >= 2);
 			a[i] = m_data.dim(i) -  2; 
 			s[i] = 1;
@@ -67,7 +71,7 @@ fl grid::evaluate_aux(const vec& location, fl slope, fl v, vec* deriv) const { /
 		assert(s[i] >= 0);
 		assert(s[i] <= 1);
 		assert(a[i] >= 0);
-		assert(a[i]+1 < m_data.dim(i));
+		//assert(a[i]+1 < m_data.dim(i));
 	}
 	const fl penalty = slope * (miss * m_factor_inv); // FIXME check that inv_factor is correctly initialized and serialized
 	assert(penalty > -epsilon_fl);

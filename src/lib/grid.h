@@ -23,6 +23,7 @@
 #ifndef VINA_GRID_H
 #define VINA_GRID_H
 
+#include <iostream> // various debugging everywhere
 #include "array3d.h"
 #include "grid_dim.h"
 #include "curl.h"
